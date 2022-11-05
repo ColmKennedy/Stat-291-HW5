@@ -1,0 +1,84 @@
+---
+title: "HW5 Part 1-3"
+author: "Colm Kennedy"
+date: "2022-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Imports
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(moderndive)
+library(knitr)
+library(skimr)
+
+```
+
+# Import and clean data, set seed
+
+```{r}
+movie <- read.csv('C:/Users/colm_/RProjects/Stat-291-HW5/Data/movie_boxoffice.csv')
+set.seed(2468)
+nrow(movie)
+movie <- distinct(movie)
+nrow(movie)
+```
+
+### 0. How many duplicated records were removed from boxoffice data? What is your random seed number? 
+
+100 duplicated records were removed from boxoffice data. We originally had 4,969 observations, we now have 4,869. Our random seed number is 2468.
+
+# Part I
+
+### 1. Treat the box office data as your population. Have a histogram of the global box office earning.  Describe the shape of the distribution 
+
+The histogram of global box office earnings appears to have heavy right skew. The most frequent box office earning, by far is in the \$0 - \$50M bin. The skew is apparent in the statistics as well, the mean is \$95.8M, which is much higher than the median of \$31.2M, further suggesting a high degree of right skew. As for variablity, the standard devation is \$177.5M, and the interquartile range is \$96.6M. The full range is \$2,783.9M. The distribution does not appear normal
+
+
+```{r}
+ggplot(data = movie, mapping = aes(x = Worldwide_Gross)) +
+  geom_histogram(color = 'white', bins = 50)
+
+summary(movie$Worldwide_Gross)
+sd(movie$Worldwide_Gross)
+IQR(movie$Worldwide_Gross)
+
+```
+
+### 2. In the population, what is the average global box office earning? What is the standard deviation? What is the proportion of movies whose global box office earning exceeds budget?  
+
+The average global box office earning in the population is:  \$95.8M. The standard deviation is: \$177.5M. The proportion of movies whose global box office earning exceeds budget is 3146/4869, or 0.646.
+
+```{r}
+moviesOverBudget <- subset(movie, (movie$Worldwide_Gross - movie$Budget) > 0)
+nrow(moviesOverBudget)
+
+propOverBudg <- nrow(moviesOverBudget) / nrow(movie)
+propOverBudg
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
