@@ -1,0 +1,122 @@
+---
+title: "HW5 Part 0-5"
+author: "Colm Kennedy, Michael Jucan"
+date: "2022-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Imports
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(moderndive)
+library(knitr)
+library(skimr)
+
+```
+
+# Import and clean data, set seed
+
+```{r}
+movie <- read.csv('movie_boxoffice.csv')
+set.seed(2468)
+nrow(movie)
+movie <- distinct(movie)
+nrow(movie)
+```
+
+### 0. How many duplicated records were removed from boxoffice data? What is your random seed number? 
+
+100 duplicated records were removed from boxoffice data. We originally had 4,969 observations, we now have 4,869. Our random seed number is 2468.
+
+# Part I
+
+### 1. Treat the box office data as your population. Have a histogram of the global box office earning.  Describe the shape of the distribution 
+
+The histogram of global box office earnings appears to have heavy right skew. The most frequent box office earning, by far is in the \$0 - \$50M bin. The skew is apparent in the statistics as well, the mean is \$95.8M, which is much higher than the median of \$31.2M, further suggesting a high degree of right skew. As for variablity, the standard devation is \$177.5M, and the interquartile range is \$96.6M. The full range is \$2,783.9M. The distribution does not appear normal
+
+
+```{r}
+ggplot(data = movie, mapping = aes(x = Worldwide_Gross)) +
+  geom_histogram(color = 'white', bins = 50)
+
+summary(movie$Worldwide_Gross)
+sd(movie$Worldwide_Gross)
+IQR(movie$Worldwide_Gross)
+
+```
+
+### 2. In the population, what is the average global box office earning? What is the standard deviation? What is the proportion of movies whose global box office earning exceeds budget?  
+
+The average global box office earning in the population is:  \$95.8M. The standard deviation is: \$177.5M. The proportion of movies whose global box office earning exceeds budget is 3146/4869, or 0.646.
+
+```{r}
+moviesOverBudget <- subset(movie, (movie$Worldwide_Gross - movie$Budget) > 0)
+nrow(moviesOverBudget)
+
+propOverBudg <- nrow(moviesOverBudget) / nrow(movie)
+propOverBudg
+```
+
+### 3. Take a random sample of 200 movies from the population, get the histogram of global box office earning, and describe the shape of the distribution. You are going to use this sample in part II and future homework. 
+
+```{r}
+moviesSample200 <- movie[sample(nrow(movie),size=200), ]
+# moviesSample200
+
+ggplot(data = moviesSample200, mapping = aes(x = Worldwide_Gross)) + geom_histogram(bins = 50)
+summary(moviesSample200$Worldwide_Gross)
+```
+
+The histogram of global box office earning within the sample is skewed right. The lowest earning group remains the most frequent and the shape of the plot continues to resemble exponential decay, like on the plot depicting the entire population. Likewise, the skew is apparent in the summary of the graph as the median is \$23.1M compared to a mean of \$78.0M.
+
+### 4. In your sample, what is the average global box office earning? What is the standard deviation? What is the proportion of movies whose global box office earning exceeds budget? Are these summary statistics from the sample close to those population parameters?
+
+```{r}
+summary(moviesSample200$Worldwide_Gross)
+
+sd200 <- sd(moviesSample200$Worldwide_Gross)
+sd200
+
+moviesOverBudget200 <- subset(moviesSample200, (moviesSample200$Worldwide_Gross - moviesSample200$Budget) > 0)
+nrow(moviesOverBudget200)
+
+propOverBudg200 <- nrow(moviesOverBudget200) / nrow(moviesSample200)
+propOverBudg200
+```
+
+The average global box office earning is \$78.0M.
+The standard deviation is $140.6M
+The proportion of movies that earned more than their budget is 0.595.
+These summary statistics are similar to those of the population but not quite the same.
+
+### 5. Take a random sample of n movies from the population, calculate the average global box office earning, and the proportion of movies whose global box office earning exceeds budget. Repeat 500 times. (Do this step for n=20, 50, 100, 200 respectively)
+
+```{r}
+'n = 20\n'
+mv020 <- movie %>% rep_sample_n(size=20, reps=500)
+mean(mv020$Worldwide_Gross)
+nrow(mv020[mv020$Worldwide_Gross > mv020$Budget, ]) / nrow(mv020)
+
+'n = 50\n'
+mv050 <- movie %>% rep_sample_n(size=50, reps=500)
+mean(mv050$Worldwide_Gross)
+nrow(mv050[mv050$Worldwide_Gross > mv050$Budget, ]) / nrow(mv050)
+
+'n = 100\n'
+mv100 <- movie %>% rep_sample_n(size=100, reps=500)
+mean(mv100$Worldwide_Gross)
+nrow(mv100[mv100$Worldwide_Gross > mv100$Budget, ]) / nrow(mv100)
+
+'n = 200'
+mv200 <- movie %>% rep_sample_n(size=200, reps=500)
+mean(mv200$Worldwide_Gross)
+nrow(mv200[mv200$Worldwide_Gross > mv200$Budget, ]) / nrow(mv200)
+
+```
+
