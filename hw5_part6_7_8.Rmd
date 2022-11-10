@@ -1,0 +1,55 @@
+---
+title: "HW5"
+output: pdf_document
+date: "2022-11-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(moderndive)
+library(dplyr)
+library(skimr)
+
+boxoffice <- read.csv("movie_boxoffice.csv", header=T)
+glimpse(boxoffice)
+
+boxoffice <- boxoffice %>% distinct()
+glimpse(boxoffice)
+
+set.seed(123)
+```
+
+```{r}
+sample_sum1 <- boxoffice %>% rep_sample_n(size= 20, reps= 500) %>% group_by(replicate) %>%  
+  summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/20, size= 20, method="Sample population")
+
+sample_sum2 <- boxoffice %>% rep_sample_n(size=50, reps= 500) %>% group_by(replicate) %>% 
+  summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/ 50, size= 50, method="Sample population")
+            
+sample_sum3 <- boxoffice %>% rep_sample_n(size=100, reps= 500) %>% group_by(replicate) %>% 
+  summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/100, size= 100, method="Sample population")
+
+sample_sum4 <- boxoffice %>% rep_sample_n(size= 200, reps= 500) %>% group_by(replicate) %>% 
+  summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/200, size= 200, method="Sample population")
+          
+sample_stat <-rbind(sample_sum1, sample_sum2, sample_sum3, sample_sum4)
+
+ggplot(data=sample_stat, aes(x=avg_box )) + geom_histogram(color="white") + facet_wrap(~size, nrow=2) 
+sample_stat %>% group_by(size) %>% summarise(mean_avg=mean(avg_box), sd_avg=sd(avg_box))
+
+```
+### Q6. see above
+
+### Q7. 1. the sample size does not matter as the average of its mean is almost similar to the population mean. 2. the sample mean decreases and also standard erroes are smaller than standard deviation. 3. the distribution of sample mean is right skewed, as the sample size increase it is a bell shapped distribution. 
+
+```{r}
+
+ggplot(data=sample_stat, aes(x=prop_high)) + geom_histogram(color="white") + facet_wrap(~size, nrow= 2) 
+sample_stat %>% group_by(size) %>% summarise(mean_prop=mean(prop_high), sd_prop=sd(prop_high))
+```
+
+### Q8. see above
