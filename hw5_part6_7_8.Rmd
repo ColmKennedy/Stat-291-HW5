@@ -24,19 +24,41 @@ set.seed(123)
 ```
 
 ```{r}
-sample_sum1 <- boxoffice %>% rep_sample_n(size= 20, reps= 500) %>% group_by(replicate) %>%  
+
+boxoffice <- boxoffice %>% mutate(highglobal=ifelse(Worldwide_Gross>= Budget, 1, 0))
+
+ggplot(boxoffice, aes(x=Worldwide_Gross)) + geom_histogram(color="white")
+summary(boxoffice$Worldwide_Gross)
+
+boxoffice %>% summarise(avgbox=mean(Worldwide_Gross), stdbox=sd(Worldwide_Gross), numhigh=sum(highglobal), nobs=n()) %>% mutate(prop_high=numhigh/nobs)   
+
+```
+
+```{r}
+
+movie_sample <- boxoffice %>% rep_sample_n(size=200) 
+ggplot(movie_sample, aes(x=Worldwide_Gross)) + geom_histogram(color="white")
+summary(movie_sample$Worldwide_Gross)
+
+movie_sample %>% summarise(avgbox= mean(Worldwide_Gross), stdbox= sd(Worldwide_Gross), numhigh=sum(highglobal), nobs=n()) %>% mutate(prop_high= numhigh/nobs)
+
+```
+
+
+```{r}
+sample1 <- boxoffice %>% rep_sample_n(size= 20, reps= 500) %>% group_by(replicate) %>%  
   summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/20, size= 20, method="Sample population")
 
-sample_sum2 <- boxoffice %>% rep_sample_n(size=50, reps= 500) %>% group_by(replicate) %>% 
+sample2 <- boxoffice %>% rep_sample_n(size=50, reps= 500) %>% group_by(replicate) %>% 
   summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/ 50, size= 50, method="Sample population")
             
-sample_sum3 <- boxoffice %>% rep_sample_n(size=100, reps= 500) %>% group_by(replicate) %>% 
+sample3 <- boxoffice %>% rep_sample_n(size=100, reps= 500) %>% group_by(replicate) %>% 
   summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/100, size= 100, method="Sample population")
 
-sample_sum4 <- boxoffice %>% rep_sample_n(size= 200, reps= 500) %>% group_by(replicate) %>% 
+sample4 <- boxoffice %>% rep_sample_n(size= 200, reps= 500) %>% group_by(replicate) %>% 
   summarise(numhigh=sum(highglobal), avg_box=mean(Worldwide_Gross)) %>% mutate(prop_high=numhigh/200, size= 200, method="Sample population")
           
-sample_stat <-rbind(sample_sum1, sample_sum2, sample_sum3, sample_sum4)
+sample_stat <-rbind(sample1, sample2, sample3, sample4)
 
 ggplot(data=sample_stat, aes(x=avg_box )) + geom_histogram(color="white") + facet_wrap(~size, nrow=2) 
 sample_stat %>% group_by(size) %>% summarise(mean_avg=mean(avg_box), sd_avg=sd(avg_box))
